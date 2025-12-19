@@ -4,12 +4,6 @@ import numpy as np
 with open('day_1_rotations', 'r') as raw:
     rotation_list = raw.read().splitlines()
 
-def count0AfterRotation(idx, counter, dial):
-    if dial[idx] == 0:
-        counter +=1 
-
-    return counter
-
 
 def performRotation(start_idx, rotation, dial):
     direction, amount = rotation [0], int(rotation[1:])
@@ -23,17 +17,12 @@ def calculateIdx(start_idx, direction, amount, dial):
     temp = start_idx
 
     if direction == "L":
-        temp -= amount
-        # Ensure consistency for consequtive index accesses even for large inputs
-        while temp < 0:
-            temp = (len(dial)) + temp
+        # Modulo ensures no runtime overhead for large inputs
+        temp = (temp -amount) % len(dial)
         return temp
     
     elif direction == "R":
-        temp += amount
-        # Ensure access if index would be out of bounds
-        while temp > (len(dial)-1):
-            temp = temp - len(dial)
+        temp = (temp + amount) % len(dial)
         return temp
     else:
         print("Rotation direction is neither L or R")
@@ -52,13 +41,10 @@ def obtainPasscode(_rotations):
 
     for rot in _rotations:
         current_idx = performRotation(current_idx, rot, dial)
-        counter = count0AfterRotation(current_idx, counter, dial)
+        if current_idx == 0:
+            counter += 1
 
     return counter
     
-    
-test_rotations = ["L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"]
-
-
 print(obtainPasscode(rotation_list))
 
