@@ -3,18 +3,11 @@
 
 int getRotation(char rotation[]) {
 
-    int len = strlen(rotation);
-    // Create buffer for subset
-    char temp[len];  
-    for (int i = 1; i < len; i++){
-        temp[i-1] = rotation[i];
-    }
-    // null-termination of string
-    temp[len-1] = '\0';
 
     // Transforming string to int
     int amount;
-    sscanf(temp, "%d", &amount);
+    // &rotation[1] skips first char 
+    sscanf(&rotation[1], "%d", &amount);
     
     return amount;       
 }
@@ -26,23 +19,31 @@ char getDirection(char rotation[]) {
 }
 
 
-int getNewIndex(int start_idx, char direction, int amount, int array_size){
-    int idx = start_idx;
+void getNewIndex(int *start_idx, char direction, int amount, int array_size, int *count_ptr){
+    // Pointer to current index
+    int current = *start_idx;
+    int count = amount / array_size;
+    int rest = amount % array_size;
+    
     // If "L" is used instead of 'L', C uses it as a pointer not char
     if (direction == 'L'){
-        idx = (idx - amount) % array_size;
-        if (idx < 0) {
-            idx += array_size;
+        current = (current - rest + array_size) % array_size;
+        if (rest > 0 && *start_idx != 0 && rest >= *start_idx) {
+            count += 1;
         }
     }
     else if (direction == 'R') {
-        idx = (idx + amount) % array_size;
+        current = (current + rest) % array_size;
+        if (rest > 0 && *start_idx != 0 && (*start_idx + rest >= array_size)) {
+            count += 1;
+        }
     }
     else {
         printf("Direction input is neither L nor R");
     }
-
-    return idx;
+    // Change pointers instead of returning values
+    *start_idx = current;
+    *count_ptr += count;
 }
 
 
@@ -70,18 +71,13 @@ int main() {
         if (strlen(buffer) > 0) {
             int rot = getRotation(buffer);
             char dir = getDirection(buffer);
-            // Calculate new index
-            current_idx = getNewIndex(current_idx, dir, rot, array_size);
-
-            if (current_idx == 0) {
-                counter++;
-            }
+            // Calculate new index and update counter
+            getNewIndex(&current_idx, dir, rot, array_size, &counter);
         }
     }
     // Close file
     fclose(fptr);
 
-    printf("Number of times dial pointed at 0 %d\n", counter);
-         
+    printf("Number of times dial pointed at 0 %d\n", counter);     
 }
 
