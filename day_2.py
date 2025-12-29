@@ -20,14 +20,6 @@ def detectDub(current_id, invalid_ids):
     return invalid_ids
 
 
-def processRange(currentRange, invalid_ids):
-    
-    for r in currentRange:
-        invalid_ids = detectDub(r, invalid_ids)
-    
-    return invalid_ids
-
-
 def getAllRanges():
     with open('day_2_id_ranges', 'r') as raw:
         # Remove \n and whitespaces before split
@@ -36,7 +28,8 @@ def getAllRanges():
 
     for r in id_ranges:
         current_range = createRange(r)
-        processRange(current_range, invalid_ids)
+        for curr_r in current_range:
+            invalid_ids = detectDub(curr_r, invalid_ids)
 
     return sum(invalid_ids)
 
