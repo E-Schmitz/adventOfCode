@@ -1,40 +1,44 @@
+data_source = 'day_2_id_ranges'
+#data_source = 'test_ids'
+
 def createRange(range_input):
-    lwr, upr = range_input.split("-")
-    lwr = int(lwr)
-    upr = int(upr)
-    current_range = range(lwr, upr +1)
-
-    return current_range
+    lwr, upr = map(int, range_input.split("-"))
+    return range(lwr, upr +1)
 
 
-def detectDub(current_id, invalid_ids):
+def isInvalidId(current_range, part):
+    s = str(current_range)
+    length = len(s)
 
-    id_list = list(map(int, str(current_id)))
-    mid = len(id_list)//2
-    fst = id_list[:mid]
-    lst = id_list[mid:]
+    if part == 1:
+        if length % 2 != 0:
+            return False
+        mid = length // 2
+        return s[:mid] == s[mid:]
 
-    if fst == lst:
-        invalid_ids.append(int(current_id))
+    # Check for paterns of arbitrary length
+    for n in range(1, length // 2 + 1):
+        if length % n == 0:
+            if s[:n] * (length // n) == s:
+                return True
+    return False
 
-    return invalid_ids
 
-
-def getAllRanges():
-    with open('day_2_id_ranges', 'r') as raw:
-        # Remove \n and whitespaces before split
+def getAllRanges(part):
+    with open(data_source, 'r') as raw:
         id_ranges = raw.read().strip().split(",")
-        invalid_ids = []
 
+    total = 0
     for r in id_ranges:
-        current_range = createRange(r)
-        for curr_r in current_range:
-            invalid_ids = detectDub(curr_r, invalid_ids)
+        for curr_id in createRange(r):
+            if isInvalidId(curr_id, part):
+                total += curr_id
 
-    return sum(invalid_ids)
+    return total
 
 
-print(getAllRanges())
+print("Result for part 1: ", getAllRanges(part=1))
+print("Result for part 2: ", getAllRanges(part=2))
 
 
 
